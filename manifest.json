@@ -1,0 +1,16 @@
+{
+  "name": "我的計算機",
+  "short_name": "計算機",
+  "description": "個人用的計算機 App：四則運算、歷史記錄、單位換算、匯率換算、分帳小費折扣。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0d12",
+  "theme_color": "#0d0d12",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

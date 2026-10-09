@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="計算機">
+<meta name="theme-color" content="#0d0d12">
+<title>我的計算機</title>
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- 頂部標題列 -->
+  <header class="app-header">
+    <span class="app-title" id="appTitle">我的計算機</span>
+    <button id="themeBtn" class="icon-btn" aria-label="切換主題">🎨</button>
+  </header>
+
+  <!-- 主題選單 -->
+  <div id="themeMenu" class="theme-menu hidden">
+    <div class="theme-menu-title">選擇主題</div>
+    <div class="theme-swatches" id="themeSwatches"></div>
+  </div>
+
+  <!-- 內容區 -->
+  <main class="views">
+
+    <!-- ========== 計算機 ========== -->
+    <section id="view-calc" class="view active">
+      <div class="calc-top">
+        <button id="historyToggle" class="pill-btn">📜 歷史紀錄</button>
+      </div>
+
+      <div id="historyPanel" class="history-panel hidden">
+        <div id="historyList" class="history-list"></div>
+        <button id="clearHistory" class="link-btn">清除全部紀錄</button>
+      </div>
+
+      <div class="display">
+        <div id="expression" class="expression">&nbsp;</div>
+        <div id="result" class="result">0</div>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button class="key fn"  data-k="AC">AC</button>
+        <button class="key fn"  data-k="(">(</button>
+        <button class="key fn"  data-k=")">)</button>
+        <button class="key fn"  data-k="⌫">⌫</button>
+
+        <button class="key num" data-k="7">7</button>
+        <button class="key num" data-k="8">8</button>
+        <button class="key num" data-k="9">9</button>
+        <button class="key op"  data-k="÷">÷</button>
+
+        <button class="key num" data-k="4">4</button>
+        <button class="key num" data-k="5">5</button>
+        <button class="key num" data-k="6">6</button>
+        <button class="key op"  data-k="×">×</button>
+
+        <button class="key num" data-k="1">1</button>
+        <button class="key num" data-k="2">2</button>
+        <button class="key num" data-k="3">3</button>
+        <button class="key op"  data-k="−">−</button>
+
+        <button class="key fn"  data-k="+/−">+/−</button>
+        <button class="key num" data-k="0">0</button>
+        <button class="key num" data-k=".">.</button>
+        <button class="key op"  data-k="+">+</button>
+
+        <button class="key fn wide2" data-k="%">%</button>
+        <button class="key eq wide2" data-k="=">=</button>
+      </div>
+    </section>
+
+    <!-- ========== 單位換算 ========== -->
+    <section id="view-unit" class="view">
+      <h2 class="page-title">單位換算</h2>
+
+      <div class="field">
+        <label>類別</label>
+        <select id="unitCategory" class="select"></select>
+      </div>
+
+      <div class="convert-box">
+        <div class="convert-row">
+          <input id="unitFromValue" class="conv-input" type="number" inputmode="decimal" value="1">
+          <select id="unitFromUnit" class="select unit-select"></select>
+        </div>
+        <button id="unitSwap" class="swap-btn" aria-label="交換">⇅</button>
+        <div class="convert-row">
+          <input id="unitToValue" class="conv-input" type="number" inputmode="decimal" readonly>
+          <select id="unitToUnit" class="select unit-select"></select>
+        </div>
+      </div>
+      <p class="hint">輸入上方數值，下方會即時換算。</p>
+    </section>
+
+    <!-- ========== 匯率換算（台銀牌告） ========== -->
+    <section id="view-currency" class="view">
+      <h2 class="page-title">台銀匯率換算</h2>
+
+      <div class="convert-box">
+        <div class="convert-row">
+          <input id="curFromValue" class="conv-input" type="number" inputmode="decimal" value="1">
+          <select id="curFromUnit" class="select unit-select"></select>
+        </div>
+        <button id="curSwap" class="swap-btn" aria-label="交換">⇅</button>
+        <div class="convert-row">
+          <input id="curToValue" class="conv-input" type="number" inputmode="decimal" readonly>
+          <select id="curToUnit" class="select unit-select"></select>
+        </div>
+      </div>
+
+      <div class="rate-bar">
+        <button id="refreshRates" class="pill-btn">🔄 更新台銀匯率</button>
+        <span id="rateStatus" class="rate-status">尚未取得資料</span>
+      </div>
+      <p class="hint" id="rateHint">全部以台銀「即期賣出價」計算。僅供參考，實際以交易當時為準。</p>
+      <p class="credit" id="rateCredit"></p>
+    </section>
+
+    <!-- ========== 分帳 ========== -->
+    <section id="view-split" class="view">
+      <h2 class="page-title">分帳 / 小費 / 折扣</h2>
+
+      <div class="field">
+        <label>帳單金額</label>
+        <input id="billAmount" class="text-input" type="number" inputmode="decimal" value="1000">
+      </div>
+      <div class="field">
+        <label>折扣 (%)</label>
+        <input id="billDiscount" class="text-input" type="number" inputmode="decimal" value="0">
+      </div>
+      <div class="field">
+        <label>小費 (%)</label>
+        <input id="billTip" class="text-input" type="number" inputmode="decimal" value="10">
+      </div>
+      <div class="field">
+        <label>分帳人數</label>
+        <input id="billPeople" class="text-input" type="number" inputmode="numeric" value="2">
+      </div>
+
+      <div class="split-result">
+        <div class="split-line"><span>折扣後金額</span><b id="resAfterDiscount">-</b></div>
+        <div class="split-line"><span>小費</span><b id="resTip">-</b></div>
+        <div class="split-line"><span>總金額</span><b id="resTotal">-</b></div>
+        <div class="split-line big"><span>每人應付</span><b id="resPerPerson">-</b></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 底部頁籤 -->
+  <nav class="tabbar">
+    <button class="tab active" data-tab="calc">      <span class="tab-ico">🧮</span><span>計算機</span></button>
+    <button class="tab" data-tab="unit">             <span class="tab-ico">📏</span><span>單位</span></button>
+    <button class="tab" data-tab="currency">         <span class="tab-ico">💱</span><span>匯率</span></button>
+    <button class="tab" data-tab="split">            <span class="tab-ico">🧾</span><span>分帳</span></button>
+  </nav>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

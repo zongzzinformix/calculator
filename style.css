@@ -1,0 +1,472 @@
+/* ============================================================
+   我的計算機 — style.css
+   主題用 CSS 變數控制，切換 <html data-theme="..."> 即可換色
+   ============================================================ */
+
+/* ---------- 主題定義 ---------- */
+:root, [data-theme="midnight"] {
+  --bg: #0d0d12;
+  --surface: #16161d;
+  --surface-2: #1e1e28;
+  --text: #ffffff;
+  --text-dim: #8b8b9a;
+  --num-bg: #2a2a36;
+  --num-text: #ffffff;
+  --fn-bg: #3a3a48;
+  --fn-text: #ffffff;
+  --op-bg: #ff9f0a;
+  --op-text: #ffffff;
+  --eq-bg: #ff9f0a;
+  --eq-text: #ffffff;
+  --accent: #ff9f0a;
+  --header-bg: rgba(13,13,18,0.85);
+}
+
+[data-theme="light"] {
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface-2: #ffffff;
+  --text: #111114;
+  --text-dim: #8a8a8e;
+  --num-bg: #ffffff;
+  --num-text: #111114;
+  --fn-bg: #d1d1d6;
+  --fn-text: #111114;
+  --op-bg: #ff9500;
+  --op-text: #ffffff;
+  --eq-bg: #ff9500;
+  --eq-text: #ffffff;
+  --accent: #ff9500;
+  --header-bg: rgba(242,242,247,0.85);
+}
+
+[data-theme="sakura"] {
+  --bg: #fff0f5;
+  --surface: #ffffff;
+  --surface-2: #ffe4ee;
+  --text: #4a2340;
+  --text-dim: #b07a9a;
+  --num-bg: #ffffff;
+  --num-text: #4a2340;
+  --fn-bg: #ffd0e0;
+  --fn-text: #a3306a;
+  --op-bg: #ff6fa5;
+  --op-text: #ffffff;
+  --eq-bg: #ff6fa5;
+  --eq-text: #ffffff;
+  --accent: #ff6fa5;
+  --header-bg: rgba(255,240,245,0.88);
+}
+
+[data-theme="ocean"] {
+  --bg: #071a2b;
+  --surface: #0d2942;
+  --surface-2: #12395c;
+  --text: #eaf6ff;
+  --text-dim: #7ea6c4;
+  --num-bg: #143d61;
+  --num-text: #eaf6ff;
+  --fn-bg: #1c507d;
+  --fn-text: #eaf6ff;
+  --op-bg: #22c1c3;
+  --op-text: #04202b;
+  --eq-bg: #22c1c3;
+  --eq-text: #04202b;
+  --accent: #22c1c3;
+  --header-bg: rgba(7,26,43,0.85);
+}
+
+[data-theme="forest"] {
+  --bg: #0f1a12;
+  --surface: #16271b;
+  --surface-2: #1e3424;
+  --text: #eafff0;
+  --text-dim: #82a890;
+  --num-bg: #21382a;
+  --num-text: #eafff0;
+  --fn-bg: #2c4a37;
+  --fn-text: #eafff0;
+  --op-bg: #4caf50;
+  --op-text: #08210f;
+  --eq-bg: #4caf50;
+  --eq-text: #08210f;
+  --accent: #4caf50;
+  --header-bg: rgba(15,26,18,0.85);
+}
+
+[data-theme="sunset"] {
+  --bg: #1a1024;
+  --surface: #261834;
+  --surface-2: #33204a;
+  --text: #ffeaff;
+  --text-dim: #b58fd0;
+  --num-bg: #3a2352;
+  --num-text: #ffeaff;
+  --fn-bg: #4d2f6b;
+  --fn-text: #ffeaff;
+  --op-bg: #ff7b54;
+  --op-text: #2a0f00;
+  --eq-bg: #ff7b54;
+  --eq-text: #2a0f00;
+  --accent: #ff7b54;
+  --header-bg: rgba(26,16,36,0.85);
+}
+
+/* ---------- 基本排版 ---------- */
+/* touch-action: manipulation 可關閉 iOS Safari 的「雙擊放大」，
+   讓快速連點按鍵時畫面不會突然縮放 */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body { user-select: none; -webkit-user-select: none; }
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---------- 頂部列 ---------- */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px 8px;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.app-title { font-size: 17px; font-weight: 700; }
+.icon-btn {
+  background: var(--surface-2);
+  border: none;
+  color: var(--text);
+  font-size: 17px;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.icon-btn:active { transform: scale(0.92); }
+
+/* ---------- 主題選單 ---------- */
+.theme-menu {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 54px);
+  right: 14px;
+  z-index: 50;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  width: 232px;
+}
+.theme-menu.hidden { display: none; }
+.theme-menu-title { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
+.theme-swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.swatch {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  height: 46px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 5px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.swatch.active { border-color: var(--text); }
+
+/* ---------- 頁面切換 ---------- */
+.views { flex: 1; position: relative; overflow: hidden; }
+.view {
+  display: none;
+  height: 100%;
+  overflow-y: auto;
+  padding: 8px 18px 18px;
+  -webkit-overflow-scrolling: touch;
+}
+.view.active { display: flex; flex-direction: column; }
+
+/* 計算機頁：固定塞滿畫面，不讓使用者需要滑動 */
+#view-calc.view.active { overflow: hidden; padding-bottom: 10px; }
+
+.page-title { font-size: 22px; font-weight: 800; margin: 8px 0 16px; }
+
+/* ---------- 計算機：歷史 ---------- */
+.calc-top { display: flex; justify-content: center; padding: 2px 0 6px; }
+.pill-btn {
+  background: var(--surface-2);
+  border: none;
+  color: var(--text-dim);
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.pill-btn:active { transform: scale(0.96); }
+
+.history-panel {
+  background: var(--surface);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  max-height: 30vh;
+  overflow-y: auto;
+  padding: 6px;
+}
+.history-panel.hidden { display: none; }
+.history-list { display: flex; flex-direction: column; }
+.history-item {
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: right;
+}
+.history-item:active { background: var(--surface-2); }
+.history-item .h-expr { font-size: 12px; color: var(--text-dim); }
+.history-item .h-res { font-size: 17px; font-weight: 600; }
+.link-btn {
+  background: none; border: none; color: var(--accent);
+  font-size: 13px; padding: 8px; cursor: pointer; width: 100%;
+}
+
+/* ---------- 計算機：顯示幕 ---------- */
+.display {
+  flex: 0 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 8px 6px 12px;
+  min-height: 70px;
+  overflow: hidden;
+}
+.expression {
+  font-size: 20px;
+  color: var(--text-dim);
+  min-height: 26px;
+  word-break: break-all;
+  text-align: right;
+  line-height: 1.3;
+}
+.result {
+  font-size: 54px;
+  font-weight: 300;
+  line-height: 1.05;
+  word-break: break-all;
+  text-align: right;
+  max-width: 100%;
+}
+.result.small { font-size: 38px; }
+
+/* ---------- 計算機：鍵盤 ---------- */
+.keypad {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 10px;
+}
+.key {
+  border: none;
+  border-radius: 18px;
+  font-size: 26px;
+  font-weight: 500;
+  min-height: 0;
+  cursor: pointer;
+  transition: transform 0.05s;
+}
+.key:active { transform: scale(0.94); }
+.key.num { background: var(--num-bg); color: var(--num-text); }
+.key.fn  { background: var(--fn-bg);  color: var(--fn-text); }
+.key.op  { background: var(--op-bg);  color: var(--op-text); font-weight: 600; }
+.key.eq  { background: var(--eq-bg);  color: var(--eq-text); font-weight: 700; }
+.key.wide2 { grid-column: span 2; }
+
+/* ---------- 表單欄位 ---------- */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+.text-input, .select, .conv-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 17px;
+  padding: 12px 14px;
+  outline: none;
+  font-family: inherit;
+}
+.select { appearance: none; -webkit-appearance: none; }
+
+/* ---------- 換算 ---------- */
+.convert-box {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 6px;
+}
+.convert-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  padding: 6px;
+}
+.conv-input {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  font-weight: 600;
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 6px;
+}
+.unit-select {
+  width: 40%;
+  flex: 0 0 40%;
+  font-size: 15px;
+  border: none;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 10px;
+}
+[readonly] { color: var(--accent); }
+.swap-btn {
+  display: block;
+  margin: 2px auto;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+.swap-btn:active { transform: rotate(180deg); }
+.hint { font-size: 12px; color: var(--text-dim); margin: 10px 2px; line-height: 1.5; }
+
+.rate-bar { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.rate-status { font-size: 12px; color: var(--text-dim); }
+
+/* ---------- 分帳 ---------- */
+.split-result {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 8px 16px;
+  margin-top: 6px;
+}
+.split-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--surface-2);
+  font-size: 16px;
+}
+.split-line:last-child { border-bottom: none; }
+.split-line span { color: var(--text-dim); }
+.split-line.big { font-size: 20px; }
+.split-line.big b { color: var(--accent); font-size: 26px; }
+
+/* ---------- 底部頁籤 ---------- */
+.tabbar {
+  display: flex;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--surface-2);
+}
+.tab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 8px 0 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+.tab.active { color: var(--accent); }
+.tab-ico { font-size: 20px; }
+
+/* ---------- 分段切換按鈕（匯率來源 / 牌告種類） ---------- */
+.seg {
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: 12px;
+  padding: 4px;
+}
+.seg-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 14px;
+  padding: 9px 6px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.seg-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
+.seg-btn:active { transform: scale(0.97); }
+
+.credit { font-size: 11px; color: var(--text-dim); margin: 6px 2px 0; line-height: 1.6; }
+.credit a { color: var(--accent); text-decoration: none; }
+
+.hidden { display: none !important; }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.82);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 桌機瀏覽器預覽時，限制寬度讓它像手機 */
+@media (min-width: 520px) {
+  #app {
+    max-width: 430px;
+    margin: 0 auto;
+    border-left: 1px solid var(--surface-2);
+    border-right: 1px solid var(--surface-2);
+  }
+  .theme-menu { right: calc(50% - 215px + 14px); }
+}
