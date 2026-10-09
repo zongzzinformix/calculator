@@ -63,34 +63,57 @@ function toast(msg) {
 }
 
 /* ---------- 震動回饋（Haptic） ---------- */
+/* iOS Safari 沒有 navigator.vibrate。
+   做法（參考 ios-haptics）：在每個按鍵上疊一層透明 <label>，內含一個隱藏的
+   <input type="checkbox" switch>。使用者的真實觸控落在 label 上 → Safari 把它
+   當成「信任的點擊」轉發給 switch 切換 → 觸發 Taptic Engine 震動。 */
 const Haptic = {
   enabled: true,
-  switchEl: null,
+  isIOS: false,
 
-  load() { this.enabled = STORE.get('calc_haptic', true); },
-
-  // iOS Safari 沒有 navigator.vibrate，
-  // 改用隱藏的 <input type="checkbox" switch>：切換它會觸發 Taptic Engine 震動。
-  ensureSwitch() {
-    if (this.switchEl) return this.switchEl;
-    const el = document.createElement('input');
-    el.type = 'checkbox';
-    el.setAttribute('switch', '');
-    el.setAttribute('aria-hidden', 'true');
-    el.tabIndex = -1;
-    el.style.cssText = 'position:fixed;top:50%;left:50%;width:2px;height:2px;margin:-1px 0 0 -1px;opacity:0.01;pointer-events:none;border:0;padding:0;';
-    document.body.appendChild(el);
-    this.switchEl = el;
-    return el;
+  load() {
+    this.enabled = STORE.get('calc_haptic', true);
+    this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   },
 
+  attach(element) {
+    if (!this.isIOS || !this.enabled) return;
+    if (element.querySelector(':scope > [data-haptic-trigger]')) return;
+
+    const labelEl = document.createElement('label');
+    labelEl.setAttribute('data-haptic-trigger', '');
+    labelEl.setAttribute('aria-hidden', 'true');
+    Object.assign(labelEl.style, {
+      position: 'absolute', inset: '0', touchAction: 'manipulation',
+      webkitTapHighlightColor: 'transparent'
+    });
+
+    const switchEl = document.createElement('input');
+    switchEl.type = 'checkbox';
+    switchEl.setAttribute('switch', '');
+    Object.assign(switchEl.style, {
+      position: 'absolute', width: '1px', height: '1px', margin: '0', visibility: 'hidden'
+    });
+    // switch 被點擊時不要再冒泡到按鍵，避免同一次觸控觸發兩次
+    switchEl.addEventListener('click', (e) => e.stopPropagation());
+
+    labelEl.append(switchEl);
+
+    if (getComputedStyle(element).position === 'static') element.style.position = 'relative';
+    element.insertAdjacentElement('beforeend', labelEl);
+  },
+
+  attachToKeys() { $$('#keypad .key').forEach((k) => this.attach(k)); },
+
+  detachAll() { $$('#keypad [data-haptic-trigger]').forEach((el) => el.remove()); },
+
+  // Android / 其他支援 vibrate 的裝置
   fire() {
     if (!this.enabled) return;
-    if (typeof navigator.vibrate === 'function') {   // Android / Chrome
+    if (typeof navigator.vibrate === 'function') {
       try { navigator.vibrate(12); } catch (e) {}
-      return;
     }
-    try { this.ensureSwitch().click(); } catch (e) {} // iOS Safari
   }
 };
 
@@ -698,12 +721,14 @@ function init() {
 
   // 震動回饋設定
   Haptic.load();
+  Haptic.attachToKeys();  // 在每個按鍵疊上震動層（僅 iOS）
   const hapticToggle = $('#hapticToggle');
   if (hapticToggle) {
     hapticToggle.checked = Haptic.enabled;
     hapticToggle.addEventListener('change', () => {
       Haptic.enabled = hapticToggle.checked;
       STORE.set('calc_haptic', Haptic.enabled);
+      if (Haptic.enabled) Haptic.attachToKeys(); else Haptic.detachAll();
       toast(Haptic.enabled ? '震動回饋：開' : '震動回饋：關');
     });
   }

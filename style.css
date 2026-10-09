@@ -348,6 +348,7 @@ body { user-select: none; -webkit-user-select: none; }
   gap: 10px;
 }
 .key {
+  position: relative;
   border: none;
   border-radius: 18px;
   font-size: 26px;
@@ -357,6 +358,8 @@ body { user-select: none; -webkit-user-select: none; }
   transition: transform 0.05s;
 }
 .key:active { transform: scale(0.94); }
+/* 震動層被按到時，也讓按鍵有按下的縮放效果 */
+.key:has(> [data-haptic-trigger]:active) { transform: scale(0.94); }
 .key.num { background: var(--num-bg); color: var(--num-text); }
 .key.fn  { background: var(--fn-bg);  color: var(--fn-text); }
 .key.op  { background: var(--op-bg);  color: var(--op-text); font-weight: 600; }
