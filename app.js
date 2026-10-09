@@ -631,24 +631,44 @@ const Currency = {
     this.convert();
   },
 
+  // 取得台銀資料：優先自家 rates.json（同源、最新），失敗才用社群備援
+  async fetchSource() {
+    // 1) 自家 GitHub Actions 每 15 分鐘更新的 rates.json
+    try {
+      const r = await fetch('rates.json?t=' + Date.now(), { cache: 'no-store' });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && j.details) {
+          const time = j.postedAt
+            ? '掛牌 ' + j.postedAt
+            : '擷取 ' + new Date(j.fetchedAt).toLocaleString();
+          return { details: j.details, time };
+        }
+      }
+    } catch (e) { /* 落到備援 */ }
+
+    // 2) 備援：社群 RateWise（可能較舊）
+    const r2 = await fetch('https://cdn.jsdelivr.net/gh/haotool/app@data/public/rates/latest.json', { cache: 'no-store' });
+    const j2 = await r2.json();
+    if (!j2 || !j2.details) throw new Error('bad data');
+    return { details: j2.details, time: j2.updateTime ? '備援 ' + j2.updateTime : '備援資料' };
+  },
+
   async refresh(silent) {
     const status = $('#rateStatus');
     if (!silent) status.textContent = '更新中…';
     try {
-      // 台銀牌告 JSON（走 jsDelivr CDN，支援瀏覽器跨網域讀取）
-      const res = await fetch('https://cdn.jsdelivr.net/gh/haotool/app@data/public/rates/latest.json', { cache: 'no-store' });
-      const j = await res.json();
-      if (!j || !j.details) throw new Error('bad data');
+      const src = await this.fetchSource();
 
       const rate = { TWD: 1 };
       Object.keys(CURRENCIES).forEach((code) => {
         if (code === 'TWD') return;
-        const d = j.details[code];
+        const d = src.details[code];
         const sell = d && d.spot && d.spot.sell; // 只取「即期賣出價」
         if (sell) rate[code] = sell;
       });
       this.rate = rate;
-      this.botUpdateTime = j.updateTime || '';
+      this.botUpdateTime = src.time;
       STORE.set('calc_bot', { rate, __updateTime: this.botUpdateTime });
       this.updateStatus();
       this.convert();
@@ -664,7 +684,7 @@ const Currency = {
     status.textContent = this.botUpdateTime
       ? '台銀即期賣出 · ' + this.botUpdateTime
       : '尚未取得資料，請按更新';
-    $('#rateCredit').innerHTML = '資料來源：臺灣銀行牌告匯率（即期賣出），經 <a href="https://app.haotool.org/ratewise/" target="_blank" rel="noopener">RateWise</a> 彙整（每 5 分鐘更新）。';
+    $('#rateCredit').innerHTML = '資料來源：臺灣銀行牌告匯率（即期賣出）。由本站的 GitHub Actions 每 15 分鐘自動更新。';
   }
 };
 

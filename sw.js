@@ -3,7 +3,7 @@
    - 連得到伺服器時，永遠拿最新檔案（改程式馬上生效）
    - 連不到時，才用快取（離線也能用）
 */
-const CACHE = 'calc-v9';
+const CACHE = 'calc-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -33,8 +33,8 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
 
-  // 匯率 API 交給瀏覽器處理（失敗時程式會用預設值）
-  if (req.url.includes('open.er-api.com')) return;
+  // 匯率 API／rates.json 交給瀏覽器直接抓（不吃快取，離線時 App 會用上次的值）
+  if (req.url.includes('open.er-api.com') || req.url.includes('rates.json')) return;
 
   e.respondWith(
     fetch(req)
