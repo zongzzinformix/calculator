@@ -28,6 +28,11 @@
   <div id="themeMenu" class="theme-menu hidden">
     <div class="theme-menu-title">選擇主題</div>
     <div class="theme-swatches" id="themeSwatches"></div>
+    <div class="menu-divider"></div>
+    <label class="menu-row">
+      <span>震動回饋</span>
+      <input type="checkbox" switch id="hapticToggle" checked>
+    </label>
   </div>
 
   <!-- 內容區 -->
@@ -36,12 +41,13 @@
     <!-- ========== 計算機 ========== -->
     <section id="view-calc" class="view active">
       <div class="calc-top">
-        <button id="historyToggle" class="pill-btn">📜 歷史紀錄</button>
+        <button id="historyToggle" class="pill-btn">🧾 歷史紙帶</button>
       </div>
 
       <div id="historyPanel" class="history-panel hidden">
+        <div class="tape-head">計 算 紀 錄</div>
         <div id="historyList" class="history-list"></div>
-        <button id="clearHistory" class="link-btn">清除全部紀錄</button>
+        <button id="clearHistory" class="tape-clear">清 除 全 部</button>
       </div>
 
       <div class="display">

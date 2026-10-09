@@ -62,6 +62,38 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 1600);
 }
 
+/* ---------- 震動回饋（Haptic） ---------- */
+const Haptic = {
+  enabled: true,
+  switchEl: null,
+
+  load() { this.enabled = STORE.get('calc_haptic', true); },
+
+  // iOS Safari 沒有 navigator.vibrate，
+  // 改用隱藏的 <input type="checkbox" switch>：切換它會觸發 Taptic Engine 震動。
+  ensureSwitch() {
+    if (this.switchEl) return this.switchEl;
+    const el = document.createElement('input');
+    el.type = 'checkbox';
+    el.setAttribute('switch', '');
+    el.setAttribute('aria-hidden', 'true');
+    el.tabIndex = -1;
+    el.style.cssText = 'position:fixed;top:50%;left:50%;width:2px;height:2px;margin:-1px 0 0 -1px;opacity:0.01;pointer-events:none;border:0;padding:0;';
+    document.body.appendChild(el);
+    this.switchEl = el;
+    return el;
+  },
+
+  fire() {
+    if (!this.enabled) return;
+    if (typeof navigator.vibrate === 'function') {   // Android / Chrome
+      try { navigator.vibrate(12); } catch (e) {}
+      return;
+    }
+    try { this.ensureSwitch().click(); } catch (e) {} // iOS Safari
+  }
+};
+
 /* ============================================================
    1. 主題切換
    ============================================================ */
@@ -342,7 +374,7 @@ function renderHistory() {
   const box = $('#historyList');
   box.innerHTML = '';
   if (!Calc.history.length) {
-    box.innerHTML = '<div class="history-item"><div class="h-res" style="color:var(--text-dim)">還沒有紀錄</div></div>';
+    box.innerHTML = '<div class="history-item"><div class="h-expr" style="text-align:center;color:#b0a48c">— 還沒有紀錄 —</div></div>';
     return;
   }
   Calc.history.forEach((h) => {
@@ -373,7 +405,7 @@ function initCalc() {
 
   $('#keypad').addEventListener('click', (e) => {
     const btn = e.target.closest('.key');
-    if (btn) Calc.press(btn.dataset.k);
+    if (btn) { Haptic.fire(); Calc.press(btn.dataset.k); }
   });
 
   $('#historyToggle').addEventListener('click', () => {
@@ -663,6 +695,18 @@ function initSplit() {
 function init() {
   buildThemeMenu();
   applyTheme(STORE.get('calc_theme', 'midnight'));
+
+  // 震動回饋設定
+  Haptic.load();
+  const hapticToggle = $('#hapticToggle');
+  if (hapticToggle) {
+    hapticToggle.checked = Haptic.enabled;
+    hapticToggle.addEventListener('change', () => {
+      Haptic.enabled = hapticToggle.checked;
+      STORE.set('calc_haptic', Haptic.enabled);
+      toast(Haptic.enabled ? '震動回饋：開' : '震動回饋：關');
+    });
+  }
 
   $('#themeBtn').addEventListener('click', (e) => {
     e.stopPropagation();
