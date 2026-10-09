@@ -580,6 +580,29 @@ const CURRENCIES = {
   NZD: '紐西蘭幣 NZD', IDR: '印尼盾 IDR'
 };
 
+// 解析台銀 CSV（內容可能夾帶 r.jina.ai 的開頭說明，故先找到表頭）
+// 欄位：0 幣別 | 2 現金買入 | 3 即期買入 | 12 現金賣出 | 13 即期賣出
+function parseBankCsv(text) {
+  const lines = text.replace(/\r/g, '').split('\n');
+  const start = lines.findIndex((l) => /^Currency,/.test(l));
+  const body = start >= 0 ? lines.slice(start + 1) : lines.slice(1);
+  const rows = {};
+  for (const line of body) {
+    const c = line.split(',');
+    const code = (c[0] || '').trim().toUpperCase();
+    if (!/^[A-Z]{3}$/.test(code)) continue;
+    const num = (v) => {
+      const n = parseFloat(v);
+      return Number.isFinite(n) && n > 0 ? n : null; // 台銀用 0.00000 代表無報價
+    };
+    rows[code] = {
+      spot: { buy: num(c[3]), sell: num(c[13]) },
+      cash: { buy: num(c[2]), sell: num(c[12]) }
+    };
+  }
+  return rows;
+}
+
 const Currency = {
   // rate[幣別] = 1 單位外幣 = ? 新台幣（台銀即期賣出價）；TWD 固定為 1
   rate: null,
@@ -631,23 +654,26 @@ const Currency = {
     this.convert();
   },
 
-  // 取得台銀資料：優先自家 rates.json（同源、最新），失敗才用社群備援
+  // 取得台銀即時匯率。
+  // 直接抓台銀會被 WAF 擋（防機器人）且有跨網域限制，
+  // 所以透過 r.jina.ai 代理讀取台銀官方 CSV（jina 有開 CORS）。
   async fetchSource() {
-    // 1) 自家 GitHub Actions 每 15 分鐘更新的 rates.json
+    // 1) 即時向台銀抓（經 r.jina.ai 代理）
     try {
-      const r = await fetch('rates.json?t=' + Date.now(), { cache: 'no-store' });
-      if (r.ok) {
-        const j = await r.json();
-        if (j && j.details) {
-          const time = j.postedAt
-            ? '掛牌 ' + j.postedAt
-            : '擷取 ' + new Date(j.fetchedAt).toLocaleString();
-          return { details: j.details, time };
+      const url = 'https://r.jina.ai/https://rate.bot.com.tw/xrt/flcsv/0/day';
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) {
+        const details = parseBankCsv(await res.text());
+        if (Object.keys(details).length >= 5) {
+          const t = new Date();
+          const hh = String(t.getHours()).padStart(2, '0');
+          const mm = String(t.getMinutes()).padStart(2, '0');
+          return { details, time: '擷取 ' + hh + ':' + mm };
         }
       }
     } catch (e) { /* 落到備援 */ }
 
-    // 2) 備援：社群 RateWise（可能較舊）
+    // 2) 備援：社群彙整的台銀 JSON（可能需要一段時間才會更新）
     const r2 = await fetch('https://cdn.jsdelivr.net/gh/haotool/app@data/public/rates/latest.json', { cache: 'no-store' });
     const j2 = await r2.json();
     if (!j2 || !j2.details) throw new Error('bad data');
@@ -684,7 +710,7 @@ const Currency = {
     status.textContent = this.botUpdateTime
       ? '台銀即期賣出 · ' + this.botUpdateTime
       : '尚未取得資料，請按更新';
-    $('#rateCredit').innerHTML = '資料來源：臺灣銀行牌告匯率（即期賣出）。由本站的 GitHub Actions 每 15 分鐘自動更新。';
+    $('#rateCredit').innerHTML = '資料來源：臺灣銀行牌告匯率（即期賣出）。開啟或按更新時即時向台銀抓取。';
   }
 };
 

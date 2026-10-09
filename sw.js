@@ -3,7 +3,7 @@
    - 連得到伺服器時，永遠拿最新檔案（改程式馬上生效）
    - 連不到時，才用快取（離線也能用）
 */
-const CACHE = 'calc-v10';
+const CACHE = 'calc-v11';
 const ASSETS = [
   './',
   './index.html',
