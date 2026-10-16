@@ -358,7 +358,7 @@ body { user-select: none; -webkit-user-select: none; }
   position: relative;
   border: none;
   border-radius: 18px;
-  font-size: 26px;
+  font-size: 34px;
   font-weight: 500;
   min-height: 0;
   cursor: pointer;
