@@ -355,11 +355,16 @@ body { user-select: none; -webkit-user-select: none; }
   font-weight: 500;
   min-height: 0;
   cursor: pointer;
-  transition: transform 0.05s;
+  transition: transform 0.09s ease, filter 0.09s ease;
+  will-change: transform;
 }
-.key:active { transform: scale(0.94); }
-/* 震動層被按到時，也讓按鍵有按下的縮放效果 */
-.key:has(> [data-haptic-trigger]:active) { transform: scale(0.94); }
+/* 按下瞬間的回饋（.pressed 由 JS 在 pointerdown 時即時加上，快速連點也準確） */
+.key.pressed,
+.key:active {
+  transform: scale(0.9);
+  filter: brightness(1.22);
+  transition-duration: 0.02s;
+}
 .key.num { background: var(--num-bg); color: var(--num-text); }
 .key.fn  { background: var(--fn-bg);  color: var(--fn-text); }
 .key.op  { background: var(--op-bg);  color: var(--op-text); font-weight: 600; }

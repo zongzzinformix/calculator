@@ -431,6 +431,17 @@ function initCalc() {
     if (btn) { Haptic.fire(); Calc.press(btn.dataset.k); }
   });
 
+  // 立即的按下回饋：手指一按下就變暗/縮小（比 CSS :active 更即時、可靠）
+  const keypad = $('#keypad');
+  const clearPressed = () => $$('#keypad .key.pressed').forEach((k) => k.classList.remove('pressed'));
+  keypad.addEventListener('pointerdown', (e) => {
+    const key = e.target.closest('.key');
+    if (key) key.classList.add('pressed');
+  });
+  document.addEventListener('pointerup', clearPressed);
+  document.addEventListener('pointercancel', clearPressed);
+  window.addEventListener('blur', clearPressed);
+
   $('#historyToggle').addEventListener('click', () => {
     $('#historyPanel').classList.toggle('hidden');
   });
